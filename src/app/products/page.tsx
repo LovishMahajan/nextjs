@@ -3,6 +3,7 @@ import Link from "next/link";
 import { LikeButton } from "@/components/like-button";
 import { getProducts } from "@/lib/db/queries";
 import { z } from "zod";
+import { ProductCreator } from "@/components/product-creator";
 
 // A schema describing what we EXPECT the external API to return
 const ExternalProductSchema = z.object({
@@ -43,15 +44,7 @@ export default async function ProductsPage({
 				/>
 				<button type="submit">Search</button>
 			</form>
-			<ul>
-				{products.map((p) => (
-					<li key={p.id}>
-						<Link href={`/products/${p.id}`}>{p.name}</Link> — ₹
-						{p.price} <LikeButton />{" "}
-						{/* ← the only thing shipping JS */}
-					</li>
-				))}
-			</ul>
+			<ProductCreator initial={products.map((p) => ({ id: p.id, name: p.name, price: p.price }))} />
 		</main>
 	);
 }

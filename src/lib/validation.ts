@@ -2,10 +2,16 @@
 import { z } from "zod";
 
 export const ProductSchema = z.object({
-  id: z.string().uuid(),
-  name: z.string().min(1),
-  price: z.number().int().positive(), // integer paise, like our DB (Phase 4)
+	id: z.string().uuid(),
+	name: z.string().min(1),
+	price: z.number().int().positive(), // integer paise, like our DB (Phase 4)
+});
+
+export const CreateProductSchema = z.object({
+	name: z.string().min(1),
+	price: z.number().int().positive(), // integer paise
 });
 
 // The type is DERIVED from the schema — not written by hand.
 export type Product = z.infer<typeof ProductSchema>;
+export type CreateProduct = z.infer<typeof CreateProductSchema>;
