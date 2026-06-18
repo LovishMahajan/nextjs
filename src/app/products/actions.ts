@@ -5,11 +5,11 @@ import { CreateProductSchema } from "@/lib/validation";
 import { db } from "@/lib/db";
 import { products } from "@/lib/db/schema";
 import { updateTag } from "next/cache";
+import { requirePermission } from "@/lib/authz";
 
 export async function createProduct(raw: unknown) {
-	// (Phase 11 will add a permission check right here.)
-
-	// raw comes from the client → UNTRUSTED → safeParse (Phase 6 rule).
+	await requirePermission("product:create");
+	
 	const parsed = CreateProductSchema.safeParse(raw);
 	if (!parsed.success) {
 		return { ok: false as const, errors: parsed.error.flatten() };

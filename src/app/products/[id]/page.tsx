@@ -23,6 +23,7 @@ export default async function ProductPage({
 		); // findFirst can return undefined
 	return (
 		<main>
+			<h1>{product.name}</h1>
 			<p>₹{(product.price / 100).toFixed(2)}</p>
 
 			<Suspense fallback={<p>Loading reviews…</p>}>

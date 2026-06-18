@@ -8,6 +8,20 @@
       "when": 1781690455090,
       "tag": "0000_special_wallflower",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1781699250962,
+      "tag": "0001_closed_triton",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1781701440231,
+      "tag": "0002_unique_nomad",
+      "breakpoints": true
     }
   ]
 }

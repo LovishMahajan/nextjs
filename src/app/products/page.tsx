@@ -1,40 +1,53 @@
-// src/app/products/page.tsx — the "/products" route
-import Link from "next/link";
-import { LikeButton } from "@/components/like-button";
+// src/app/products/page.tsx — static shell
+import { Suspense } from "react";
+import { getCurrentUser } from "@/lib/auth";
 import { getProducts } from "@/lib/db/queries";
-import { z } from "zod";
 import { ProductCreator } from "@/components/product-creator";
 
-// A schema describing what we EXPECT the external API to return
-const ExternalProductSchema = z.object({
-	id: z.number(),
-	title: z.string(),
-	price: z.number(),
-});
-
-async function getExternalProducts() {
-	const res = await fetch("https://fakestoreapi.com/products");
-
-	// .safeParse does NOT throw — it returns { success, data } | { success, error }.
-	// External input failing is EXPECTED (not our bug), so we handle it gracefully.
-	const parsed = z.array(ExternalProductSchema).safeParse(await res.json());
-
-	if (!parsed.success) {
-		throw new Error("Upstream API returned an unexpected shape");
-	}
-	return parsed.data; // from here on, fully typed AND verified at runtime
+export default function ProductsPage({
+	searchParams,
+}: {
+	searchParams: Promise<{ q?: string }>;
+}) {
+	return (
+		<main>
+			<h1>Products</h1>
+			<Suspense fallback={<p>Loading products…</p>}>
+				<ProductList searchParams={searchParams} />
+			</Suspense>
+			<Suspense fallback={<p>…</p>}>
+				<CreatorSlot />
+			</Suspense>
+		</main>
+	);
 }
-export default async function ProductsPage({
+
+// dynamic hole #1 — reads headers()
+async function CreatorSlot() {
+	const user = await getCurrentUser();
+	if (!user) return <p>Log in to add products.</p>;
+	const products = await getProducts();
+	return (
+		<ProductCreator
+			initial={products.map((p) => ({
+				id: p.id,
+				name: p.name,
+				price: p.price,
+			}))}
+		/>
+	);
+}
+
+// dynamic hole #2 — reads searchParams
+async function ProductList({
 	searchParams,
 }: {
 	searchParams: Promise<{ q?: string }>;
 }) {
 	const { q } = await searchParams;
-	const products = await getProducts(q); // runs on the server, awaited before render
+	const products = await getProducts(q);
 	return (
-		<main>
-			<h1>Products</h1>
-			{/* Plain GET form — submitting writes ?q=... to the URL, no JS needed */}
+		<>
 			<form method="get">
 				<input
 					type="text"
@@ -44,7 +57,6 @@ export default async function ProductsPage({
 				/>
 				<button type="submit">Search</button>
 			</form>
-			<ProductCreator initial={products.map((p) => ({ id: p.id, name: p.name, price: p.price }))} />
-		</main>
+		</>
 	);
 }
